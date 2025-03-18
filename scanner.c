@@ -14,10 +14,13 @@ void push(struct token_array *arr, struct token *t)
     if (arr->capacity == 0)
     {
         arr->capacity = 1;
+        arr->t = (struct token *)malloc(arr->capacity * sizeof(struct token));
+
     }
     if (arr->capacity == arr->size)
     {
-        arr->t = (struct token *)realloc(arr->t, arr->capacity * 2 * sizeof(struct token *));
+        arr->capacity *= 2;
+        arr->t = (struct token *)realloc(arr->t, arr->capacity * sizeof(struct token));
     }
     arr->t[arr->size] = *t;
     arr->size++;
@@ -25,9 +28,11 @@ void push(struct token_array *arr, struct token *t)
 
 struct token_array *scan_tokens(char *tokens)
 {
-    struct token_array arr = {NULL, 0, 0};
-    arr.t = (struct token *)malloc(arr.capacity * sizeof(struct token *));
-    struct token_array *arrPtr = &arr;
+    struct token_array *arr = (struct token_array *)malloc(sizeof(struct token_array)); 
+    arr->t = NULL;
+    arr->size = 0;
+    arr->capacity = 0; 
+
     int i = 0;
     while (*tokens != '\0')
     {
@@ -38,10 +43,8 @@ struct token_array *scan_tokens(char *tokens)
             char *leftParen;
             leftParen = "(";
             t = create_token(leftParen, LEFT_PAREN);
-            printf("token: ");
-            print_token(*t);
-            printf("\n");
-            push(arrPtr, t);
+            push(arr, t);
+            free(t); 
             tokens++;
         }
         else if (*tokens == ')')
@@ -49,10 +52,8 @@ struct token_array *scan_tokens(char *tokens)
             char *rightParen;
             rightParen = ")";
             t = create_token(rightParen, RIGHT_PAREN);
-            printf("token: ");
-            print_token(*t);
-            printf("\n");
-            push(arrPtr, t);
+            push(arr, t);
+            free(t); 
             tokens++;
         }
         else if (*tokens == '/')
@@ -60,10 +61,8 @@ struct token_array *scan_tokens(char *tokens)
             char *div;
             div = "/";
             t = create_token(div, DIV);
-            printf("token: ");
-            print_token(*t);
-            printf("\n");
-            push(arrPtr, t);
+            push(arr, t);
+            free(t); 
             tokens++;
         }
         else if (*tokens == '*')
@@ -71,10 +70,8 @@ struct token_array *scan_tokens(char *tokens)
             char *mult;
             mult = "*";
             t = create_token(mult, MULT);
-            printf("token: ");
-            print_token(*t);
-            printf("\n");
-            push(arrPtr, t);
+            push(arr, t);
+            free(t); 
             tokens++;
         }
         else if (*tokens == '+')
@@ -82,10 +79,8 @@ struct token_array *scan_tokens(char *tokens)
             char *plus;
             plus = "+";
             t = create_token(plus, PLUS);
-            printf("token: ");
-            print_token(*t);
-            printf("\n");
-            push(arrPtr, t);
+            push(arr, t);
+            free(t); 
             tokens++;
         }
         else if (*tokens == '-')
@@ -93,10 +88,8 @@ struct token_array *scan_tokens(char *tokens)
             char *minus;
             minus = "-";
             t = create_token(minus, MINUS);
-            printf("token: ");
-            print_token(*t);
-            printf("\n");
-            push(arrPtr, t);
+            push(arr, t);
+            free(t); 
             tokens++;
         }
         else if (isdigit(*tokens))
@@ -106,7 +99,7 @@ struct token_array *scan_tokens(char *tokens)
             char *c = (char *)malloc(capacity * sizeof(char));
             while (*tokens != '\0' && isdigit(*tokens))
             {
-                if (capacity == dLength)
+                if (capacity <= dLength)
                 {
                     capacity *= 2;
                     char *temp = (char *)realloc(c, capacity * sizeof(char));
@@ -123,22 +116,26 @@ struct token_array *scan_tokens(char *tokens)
                 tokens++;
                 dLength++;
             }
-            t = create_token(c, NUMBER);
-            printf("token: ");
-            print_token(*t);
-            printf("\n");
-            push(arrPtr, t);
+            c[dLength] = '\0'; 
+            t = create_token(c, NUMBER); 
+            push(arr, t);
             free(c);
+            free(t);
         }
         else if(isspace(*tokens) || isblank(*tokens))
         {
             tokens++;
         }
     }
-    return arrPtr;
+    return arr;
 };
 int main(int argc, char *argv[])
 {
     char *t = argv[1];
-    scan_tokens(t);
+    struct token_array *arr = scan_tokens(t);
+    for (int i = 0; i < arr->size; i++) { 
+        printf("Token: %s\n", arr->t[i].token); 
+    }
+    free(arr->t); 
+    free(arr);    
 };
