@@ -32,6 +32,7 @@ struct token_array *scan_tokens(char *tokens)
     while (*tokens != '\0')
     {
         struct token *t;
+
         if ((tokens[i]) == '(')
         {
             char *leftParen;
@@ -128,6 +129,10 @@ struct token_array *scan_tokens(char *tokens)
             printf("\n");
             push(arrPtr, t);
             free(c);
+        }
+        else if(isspace(*tokens) || isblank(*tokens))
+        {
+            tokens++;
         }
     }
     return arrPtr;
